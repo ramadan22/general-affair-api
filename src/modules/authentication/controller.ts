@@ -27,18 +27,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     }
 
     const { email, password } = req.body;
-    const user = await authenticationService.findUnique(email);
-
-		const validPassword = await bcrypt.compare(password, user?.password || '')
-			|| user?.password === password;
-
-    if (!validPassword) {
-			throw new AppError({
-				message: 'Email and password are incorrect!',
-				status: 401,
-				data: { email },
-			});
-    }
+    const user = await authenticationService.findUser({ email, password });
 
 		const data = {
       id: user?.id,
@@ -86,60 +75,33 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 export async function changePassword(req: Request, res: Response, next: NextFunction) {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
-
-    const validation = changePasswordSchema.safeParse(req.body);
-    const secondValidation = secondChangePasswordSchema.safeParse(req.body);
-
-    if (!validation.success) {
-      throw new AppError({
-				message: 'Validation error',
-				status: 400,
-				data: flattenZodErrors(validation.error),
-			});
-    }
+    const validation = changePasswordSchema.safeParse({ newPassword, confirmPassword });
 
     const { email } = req.user;
-    const user = await authenticationService.findUnique(email);
+    const user = await authenticationService.findUserByEmail(email);
+    const isActive = user?.isActive;
 
-    if (!user) {
-      throw new AppError({
-				message: 'User not found',
-				status: 404,
-			});
-    }
+    const secondValidation = secondChangePasswordSchema.safeParse({
+      oldPassword,
+      newPassword,
+      confirmPassword,
+      isActive,
+    });
 
-    if (user.isActive && !secondValidation.success) {
+    if (!validation.success || !secondValidation.success) {
       throw new AppError({
 				message: 'Validation error',
 				status: 400,
-				data: flattenZodErrors(secondValidation.error),
+				data: flattenZodErrors(validation.error || secondValidation.error),
 			});
     }
 
-    if (newPassword !== confirmPassword) {
-      throw new AppError({
-				message: 'New password and confirm password do not match',
-				status: 400,
-			});
-    }
-
-    // Cek old password
-    if (user.isActive) {
-      const isMatch = await bcrypt.compare(oldPassword, user.password);
-      if (!isMatch) {
-        throw new AppError({
-          message: 'Old password is incorrect',
-          status: 400,
-        });
-      }
-    }
-
-    // Hash password baru
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    const result = await authenticationService.changePassword({
+    const result = await authenticationService.updateNewPassword({
       id: user?.id,
-      hashedPassword,
+      userPassword: user?.password,
+      oldPassword,
+      newPassword,
+      isActive,
     });
 
     return defaultResponse({

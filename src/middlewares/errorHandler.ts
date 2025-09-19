@@ -22,6 +22,8 @@ export function errorHandler(
 
   res.setHeader('X-Trace-Id', traceId);
 
+  console.log('errName', errName);
+
   if (err instanceof AppError) {
     return defaultResponse({
       response: res,
@@ -33,15 +35,17 @@ export function errorHandler(
     });
   }
 
-  if (err instanceof PrismaClientKnownRequestError || errName === 'PrismaClientKnownRequestError') {
-    return defaultResponse({
-      response: res,
-      status: 400,
-      message: 'Database request error',
-      success: false,
-      traceId,
-    });
-  }
+  if (err instanceof PrismaClientKnownRequestError
+    || (errName === 'PrismaClientKnownRequestError'
+      || errName === 'PrismaClientInitializationError')) {
+        return defaultResponse({
+          response: res,
+          status: 400,
+          message: 'Database request error',
+          success: false,
+          traceId,
+        });
+      }
 
   if (err instanceof PrismaClientValidationError || errName === 'PrismaClientValidationError') {
     return defaultResponse({

@@ -11,7 +11,7 @@ export interface AuthRequest extends Request {
   user?: { id: string; email: string; role: 'GA' | 'STAFF' };
 }
 
-export const checkToken = async (
+export const checkUserToken = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction

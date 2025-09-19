@@ -1,5 +1,6 @@
 import { userRepository } from './repository';
 import { AppError } from '@/utils/appError';
+import bcrypt from 'bcrypt';
 
 function generateNumericPassword(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -15,7 +16,7 @@ export const userService = {
     }
 
     const plainPassword = generateNumericPassword();
-    const hashedPassword = plainPassword;
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
     const user = await userRepository.create({
       firstName,
