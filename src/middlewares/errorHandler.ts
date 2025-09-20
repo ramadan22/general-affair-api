@@ -18,6 +18,8 @@ export function errorHandler(
   let errName = '';
   if (err instanceof Error) errName = err.name;
 
+  console.log('errName', err);
+
   logger.logError(err, traceId, `${req.method} ${req.originalUrl}`);
 
   res.setHeader('X-Trace-Id', traceId);
@@ -29,6 +31,20 @@ export function errorHandler(
       message: err.message,
       success: false,
       data: err.data,
+      traceId,
+    });
+  }
+
+  if (errName === 'MulterError') {
+    return defaultResponse({
+      response: res,
+      status: 400,
+      message: 
+        `Error upload: ${(err as { message: string }).message}. `+
+        `${(err as { code: string }).code === 'LIMIT_FILE_SIZE'
+          ? 'Maximum upload size is 5 MB'
+          : ''}`,
+      success: false,
       traceId,
     });
   }

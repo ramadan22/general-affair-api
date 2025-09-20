@@ -7,15 +7,6 @@ import { flattenZodErrors } from '@/utils/flattenZod';
 
 export async function upload(req: Request, res: Response, next: NextFunction) {
   try {
-    const file = req.file as Express.Multer.File;
-
-    if (!file) {
-      throw new AppError({
-        message: 'No file uploaded',
-        status: 400,
-      });
-    }
-
     const validation = uploadSchema.safeParse({
       type: req.body.type || req.query.type,
       usage: req.body.usage || req.query.usage,
@@ -26,6 +17,15 @@ export async function upload(req: Request, res: Response, next: NextFunction) {
         message: validation.error.issues.map((e) => e.message).join(', '),
         status: 400,
 				data: flattenZodErrors(validation.error),
+      });
+    }
+    
+    const file = req.file as Express.Multer.File;
+
+    if (!file) {
+      throw new AppError({
+        message: 'No file uploaded',
+        status: 400,
       });
     }
 

@@ -4,6 +4,8 @@ import fs from 'fs';
 import { Request } from 'express';
 import { AppError } from '@/utils/appError';
 
+const MAX_SIZE_MB = 5;
+
 const storage = multer.diskStorage({
   destination: (req: Request, _, cb) => {
     const type = (req.body.type || req.query.type) as string;
@@ -19,12 +21,13 @@ const storage = multer.diskStorage({
       );
     }
 
-    let baseFolder: string;
-    if (type === 'image') {
-      baseFolder = 'images';
-    } else if (type === 'file') {
-      baseFolder = 'files';
-    } else {
+    const allowedTypes: Record<string, string> = {
+      image: 'images',
+      file: 'files',
+    };
+
+    const baseFolder = allowedTypes[type];
+    if (!baseFolder) {
       return cb(
         new AppError({
           message: 'Invalid type. Allowed: image, file',
@@ -34,8 +37,7 @@ const storage = multer.diskStorage({
       );
     }
 
-    const folder = path.join('src/assets', baseFolder, usage);
-
+    const folder = path.join('uploads', baseFolder, usage);
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder, { recursive: true });
     }
@@ -43,20 +45,20 @@ const storage = multer.diskStorage({
     cb(null, folder);
   },
   filename: (_, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
 
 export const uploadDynamic = multer({
   storage,
+  limits: {
+    fileSize: MAX_SIZE_MB * 1024 * 1024,
+  },
   fileFilter: (req, file, cb) => {
     const type = (req.body.type || req.query.type) as string;
 
-    if (type === 'image') {
-      if (file.mimetype.startsWith('image/')) {
-        return cb(null, true);
-      }
+    if (type === 'image' && !file.mimetype.startsWith('image/')) {
       return cb(
         new AppError({
           message: 'Only image files are allowed',
@@ -65,10 +67,7 @@ export const uploadDynamic = multer({
       );
     }
 
-    if (type === 'file') {
-      if (!file.mimetype.startsWith('image/')) {
-        return cb(null, true);
-      }
+    if (type === 'file' && file.mimetype.startsWith('image/')) {
       return cb(
         new AppError({
           message: 'Images are not allowed for type=file',
@@ -77,11 +76,15 @@ export const uploadDynamic = multer({
       );
     }
 
-    return cb(
-      new AppError({
-        message: 'Invalid type parameter',
-        status: 400,
-      })
-    );
+    if (!['image', 'file'].includes(type)) {
+      return cb(
+        new AppError({
+          message: 'Invalid type parameter',
+          status: 400,
+        })
+      );
+    }
+
+    cb(null, true);
   },
 });

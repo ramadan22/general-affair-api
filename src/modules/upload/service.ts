@@ -11,7 +11,11 @@ export const uploadService = {
 		}
 
 		const extension = path.extname(file.originalname);
-		const url = `/assets/${file.destination.replace('src/assets/', '')}/${file.filename}`; 
+
+		const url = `${process.env.BASE_URL}/uploads/${
+			file.destination.replace('uploads/', '')
+		}/${file.filename}`;
+
 		const storageKey = `${file.destination}/${file.filename}`;
 
 		const upload = await uploadRepository.create({
