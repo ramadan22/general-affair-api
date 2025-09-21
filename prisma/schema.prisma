@@ -22,7 +22,7 @@ model User {
   email              String               @unique
   image              String?
   password           String
-  socialMedia        String?
+  socialMedia        String[]             
   role               Role                 @default(GA)
   isActive           Boolean              @default(false)
   isManager          Boolean              @default(false)

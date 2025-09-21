@@ -1,3 +1,4 @@
+import { removeObjectKeys } from '@/utils';
 import { userRepository } from './repository';
 import { AppError } from '@/utils/appError';
 import bcrypt from 'bcrypt';
@@ -7,6 +8,39 @@ function generateNumericPassword(): string {
 }
 
 export const userService = {
+  getUsers: async (page: number, size: number, search: string) => {
+    const skip = (page - 1) * size;
+
+    const where = search
+      ? {
+        OR: [
+          { firstName: { contains: search } },
+          { lastName: { contains: search } },
+          { email: { contains: search } },
+        ],
+      }
+      : {};
+
+    const [users, total] = await Promise.all([
+      userRepository.get(skip, size, { ...where, isDeleted: false }),
+      userRepository.count(where),
+    ]);
+
+    return {
+      data: users,
+      meta: {
+        page,
+        size,
+        total,
+        totalPages: Math.ceil(total / size),
+      },
+    };
+  },
+  deleteUser: async (id: string) => {
+    const user = await userRepository.delete(id);
+
+    return user;
+  },
   register: async (firstName: string, email: string, role: 'GA' | 'STAFF') => {
 
     const existingUser = await userRepository.findByEmail(email);
@@ -26,5 +60,26 @@ export const userService = {
     });
 
     return { ...user, plainPassword };
+  },
+  update: async (params) => {
+    const user = await userRepository.update(params.id, removeObjectKeys({
+      ...params,
+      updatedAt: new Date(),
+    }, ['id']));
+
+    return user;
+  },
+  getById: async (id: string) => {
+    const user = await userRepository.findById(id);
+
+    if (!user) {
+      throw new AppError({
+        message: 'User profile not found!',
+        status: 404,
+        data: null,
+      });
+    }
+
+    return user;
   },
 };

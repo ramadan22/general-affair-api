@@ -3,7 +3,7 @@ import { prisma } from '@/config/database';
 export const authenticationRepository = {
 	findByEmail: (email: string) => {
     return prisma.user.findUnique({
-      where: { email },
+      where: { email, isDeleted: false },
       select: {
         id: true,
         firstName: true,

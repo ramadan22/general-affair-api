@@ -39,7 +39,7 @@ export async function upload(req: Request, res: Response, next: NextFunction) {
     return defaultResponse({
       response: res,
       success: true,
-      status: 201,
+      status: 200,
       message: 'File uploaded successfully',
       data: savedFile,
     });
