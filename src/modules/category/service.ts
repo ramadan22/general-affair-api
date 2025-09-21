@@ -78,8 +78,8 @@ export const categoryService = {
 			throw new AppError({ message: 'Category not exist', status: 400, data: { categoryId: id } });
 		}
 
-		const user = await categoryRepository.delete(id);
+		const result = await categoryRepository.delete(id);
 	
-		return user;
+		return result;
 	}
 };

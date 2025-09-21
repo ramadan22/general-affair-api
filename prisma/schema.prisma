@@ -47,11 +47,27 @@ model Upload {
 }
 
 model Category {
-  id          String    @id @default(uuid())
-  name        String
-  prefix      String
+  id         String   @id @default(uuid())
+  name       String
+  prefix     String
   isDevice   Boolean   @default(false)
-  updatedAt   DateTime?   
-  createdAt   DateTime  @default(now())
+  updatedAt  DateTime?   
+  createdAt  DateTime  @default(now())
   isDeleted  Boolean   @default(false)
+  assets     Asset[]
 }
+
+model Asset {
+  id            String   @id @default(uuid())
+  name          String
+  code          String   @unique
+  isMaintenance Boolean  @default(false)
+  serialNumber  String?
+  image         String?
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  updatedAt     DateTime?
+  createdAt     DateTime @default(now())
+  isDeleted     Boolean  @default(false)
+}
+
