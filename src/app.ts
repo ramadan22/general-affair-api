@@ -2,6 +2,7 @@ import express from 'express';
 import userRouter from '@/modules/user/route';
 import authenticationRoute from '@/modules/authentication/route';
 import uploadRoute from '@/modules/upload/routes';
+import categoryRoute from '@/modules/category/route';
 import { requestLogger } from '@/middlewares/requestLogger';
 import { errorHandler } from '@/middlewares/errorHandler';
 import { traceIdMiddleware } from './middlewares/traceId';
@@ -19,6 +20,7 @@ app.use(requestLogger);
 app.use('/api/users', userRouter);
 app.use('/api/authentication', authenticationRoute);
 app.use('/api/upload', uploadRoute);
+app.use('/api/category', categoryRoute);
 
 const uploadDir = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(uploadDir));

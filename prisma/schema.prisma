@@ -46,3 +46,12 @@ model Upload {
   updatedAt  DateTime @updatedAt
 }
 
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  prefix      String
+  isDevice   Boolean   @default(false)
+  updatedAt   DateTime?   
+  createdAt   DateTime  @default(now())
+  isDeleted  Boolean   @default(false)
+}

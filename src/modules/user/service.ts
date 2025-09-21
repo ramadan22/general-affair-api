@@ -62,6 +62,12 @@ export const userService = {
     return { ...user, plainPassword };
   },
   update: async (params) => {
+    const userById = await userRepository.findById(params.id);
+    
+    if (!userById) {
+      throw new AppError({ message: 'User not exist', status: 400, data: { userId: params.id } });
+    }
+
     const user = await userRepository.update(params.id, removeObjectKeys({
       ...params,
       updatedAt: new Date(),
