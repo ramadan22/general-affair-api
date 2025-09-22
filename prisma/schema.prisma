@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -30,6 +27,11 @@ model User {
   updatedAt          DateTime?            
   createdAt          DateTime             @default(now())
   isDeleted          Boolean              @default(false)
+
+  // Relations
+  approvalsRequested Approval[]           @relation("RequestedForApprovals")
+  approvalsCreated   Approval[]           @relation("CreatedApprovals")
+  signatures         ApprovalSignature[]  // user bisa tanda tangan banyak approval
 }
 
 model Upload {
@@ -69,5 +71,61 @@ model Asset {
   updatedAt     DateTime?
   createdAt     DateTime @default(now())
   isDeleted     Boolean  @default(false)
+
+  ApprovalAsset ApprovalAsset[]
 }
 
+enum SubmissionType {
+  PROCUREMENT
+  MAINTENANCE
+  WRITE_OFF
+  ASSIGNMENT
+}
+
+enum RequestStatus {
+  DRAFT
+  WAITING_APPROVAL
+  READY_ON_PROGRESS
+  ON_PROGRESS
+  DONE
+  ORDERED
+}
+
+model Approval {
+  id             String               @id @default(uuid())
+  submissionType SubmissionType
+  status         RequestStatus        @default(DRAFT)
+  notes          String?
+
+  createdById    String
+  createdBy      User                 @relation("CreatedApprovals", fields: [createdById], references: [id])
+
+  requestedForId String?
+  requestedFor   User?                @relation("RequestedForApprovals", fields: [requestedForId], references: [id])
+
+  assets         ApprovalAsset[]
+  signatures     ApprovalSignature[]  
+
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime?      
+  isDeleted      Boolean              @default(false)
+}
+
+model ApprovalSignature {
+  id          String    @id @default(uuid())
+  approvalId  String
+  userId      String
+  signedAt    DateTime? 
+
+  approval    Approval  @relation(fields: [approvalId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model ApprovalAsset {
+  id          String    @id @default(uuid())
+  approvalId  String
+  assetId     String
+
+  approval    Approval  @relation(fields: [approvalId], references: [id])
+  asset       Asset     @relation(fields: [assetId], references: [id])
+}
