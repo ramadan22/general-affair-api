@@ -50,16 +50,16 @@ export const categoryService = {
 	}: {
 		id: string, name: string, prefix: string, isDevice: boolean
 	}) => {
-		const categoryByName = await categoryRepository.findByName(name);
-
-		if (categoryByName) {
-			throw new AppError({ message: 'Category already exist', status: 400, data: { name } });
-		}
-
 		const categoryById = await categoryRepository.findById(id);
 
 		if (!categoryById) {
 			throw new AppError({ message: 'Category not exist', status: 400, data: { categoryId: id } });
+		}
+
+		const categoryByName = await categoryRepository.findByName(name);
+
+		if (categoryByName && categoryById.name !== name) {
+			throw new AppError({ message: 'Category already exist', status: 400, data: { name } });
 		}
 
 		const result = await categoryRepository.update(id, {
