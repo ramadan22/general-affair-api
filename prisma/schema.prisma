@@ -113,12 +113,16 @@ model Approval {
 
 model ApprovalSignature {
   id          String    @id @default(uuid())
-  approvalId  String
-  userId      String
+  email       String?
+  name        String?
+  image       String?
   signedAt    DateTime? 
 
+  approvalId  String
   approval    Approval  @relation(fields: [approvalId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
+
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
 }
 
 model ApprovalAsset {
