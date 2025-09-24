@@ -123,6 +123,8 @@ model ApprovalSignature {
 
   userId      String?
   user        User?     @relation(fields: [userId], references: [id])
+
+  updatedAt   DateTime?
 }
 
 model ApprovalAsset {

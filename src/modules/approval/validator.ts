@@ -29,9 +29,9 @@ export const approvalParamSchema = z.object({
     ])
     .default('DRAFT'),
   notes: z.string().optional(),
-  createdById: z.string().min(1, 'createdById is required'),
+  // createdById: z.string().min(1, 'createdById is required'),
   requestedForId: z.string().min(1, 'requestedForId is required'),
-  assets: z.array(assetSchema).min(1, 'At least one asset is required'),
+  // assets: z.array(assetSchema).min(1, 'At least one asset is required'),
 });
 
 export type ApprovalParamInput = z.infer<typeof approvalParamSchema>;

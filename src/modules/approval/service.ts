@@ -1,6 +1,7 @@
 // import { AppError } from '@/utils/appError';
 // import { assetRepository } from './repository';
-// import { categoryRepository } from '../category/repository';
+import { approvalRepository } from '@/modules/approval/repository';
+import { ApprovalParamInput } from './types';
 
 // function generateCode(prefix: string) {
 // 	const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0.12);
@@ -9,11 +10,11 @@
 // }
 
 export const approvalService = {
-	create: async (params) => {
+	create: async (params: ApprovalParamInput) => {
 
-		console.log('here', params);
+		const approval = await approvalRepository.create(params);
 
-		// const category = await categoryRepository.findById(categoryId);
+		console.log('approval', approval);
 
 		// if (!category) {
 		// 	throw new AppError({ message: 'Category not exist', status: 404, data: { name } });

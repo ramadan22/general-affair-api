@@ -19,7 +19,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 			);
 		}
 
-		const result = await approvalService.create(req.body);
+		const { id } = req.user;
+		const result = await approvalService.create({ ...req.body, createdById: id });
 
 		// return defaultResponse({
 		// 	response: res,
