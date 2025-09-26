@@ -38,8 +38,9 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 		const page = Number(req.query.page) || 1;
 		const size = Number(req.query.size) || 10;
 		const keyword = (req.query.keyword as string) || '';
+		const name = req.params.name || '';
 
-		const result = await assetService.get(page, size, keyword);
+		const result = await assetService.get(page, size, keyword, name);
 
 		return defaultResponse({
 			response: res,

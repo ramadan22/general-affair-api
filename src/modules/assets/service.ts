@@ -34,7 +34,7 @@ export const assetService = {
 
 		return result;
 	},
-	get: async (page: number, size: number, search: string) => {
+	get: async (page: number, size: number, search: string, name?: string) => {
 		const skip = (page - 1) * size;
 		
 		const where = search
@@ -47,9 +47,13 @@ export const assetService = {
 			}
 			: {};
 
+		const query = name !== ''
+			? assetRepository.getByName(skip, size, { ...where, isDeleted: false, name })
+			: assetRepository.get(skip, size, { ...where, isDeleted: false });
+
 		const [assets, total] = await Promise.all([
-			assetRepository.get(skip, size, { ...where, isDeleted: false }),
-			assetRepository.count(where),
+			query,
+			assetRepository.count(where, name),
 		]);
 
 		return {
