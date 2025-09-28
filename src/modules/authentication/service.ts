@@ -13,6 +13,16 @@ export const authenticationService = {
 		}
 		return user;
 	},
+	findUserById: async (id: string) => {
+		const user = await authenticationRepository.findById(id);
+		if (!user) {
+			throw new AppError({
+				message: 'User not found',
+				status: 404,
+			});
+		}
+		return user;
+	},
 	findUser: async ({ email, password }: { email: string; password: string }) => {
 		const user = await authenticationRepository.findByEmail(email);
 

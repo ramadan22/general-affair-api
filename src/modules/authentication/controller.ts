@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Request, Response, NextFunction } from 'express';
 import { authenticationService } from './service';
 import { defaultResponse } from '@/utils/response';
@@ -109,6 +111,64 @@ export async function changePassword(req: Request, res: Response, next: NextFunc
     	status: 200,
     	message: 'Password changed successfully',
     	data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function refreshToken(req: Request, res: Response, next: NextFunction) {
+  try {
+    const authHeader = req.headers.authorization;
+    const refreshToken = authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : null;
+
+    if (!refreshToken) {
+      throw new AppError({
+        message: 'Refresh token is missing',
+        status: 401,
+      });
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(refreshToken, JWT_SECRET_REFRESH);
+    } catch {
+      throw new AppError({
+        message: 'Invalid or expired refresh token',
+        status: 440,
+      });
+    }
+
+    const user = await authenticationService.findUserById(decoded.id);
+
+    if (!user) {
+      throw new AppError({
+        message: 'User not found',
+        status: 404,
+      });
+    }
+
+    const data = {
+      id: user?.id,
+      email: user?.email,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      image: user?.image,
+      role: user?.role,
+      socialMedia: user?.socialMedia,
+      isActive: user?.isActive,
+    };
+
+    const newAccessToken = jwt.sign(data, JWT_SECRET, { expiresIn: '1h' });
+
+    return defaultResponse({
+      response: res,
+      success: true,
+      status: 200,
+      message: 'Token refreshed successfully',
+      data: { accessToken: newAccessToken },
     });
   } catch (err) {
     next(err);
