@@ -8,7 +8,6 @@ import {
 } from '@/modules/authentication/validator';
 import { AppError } from '@/utils/appError';
 import { flattenZodErrors } from '@/utils/flattenZod';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || '';
