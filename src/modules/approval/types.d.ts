@@ -9,23 +9,26 @@ export type RequestStatus =
   | 'ORDERED';
 
 export interface AssetParam {
-  name: string;
-  code: string;
+  id?: string;
+  assetId: string;
+  name?: string;
+  isMaintenance?: boolean;
   serialNumber?: string | null;
   image?: string | null;
-  categoryId: string;
+  categoryId?: string;
+  isDeleted?: boolean;
 }
 
-export interface BaseSignatureParam {
+export interface SignatureParam {
+  id?: string;
+  userId: string
   email: string;
   name: string;
   image: string;
+  approvalId: string;
   signedAt?: string | null;
+  isDeleted?: boolean;
 }
-
-export type SignatureParam =
-  | ({ userId: string } & Partial<BaseSignatureParam>)
-  | (Omit<BaseSignatureParam, 'signedAt'> & { signedAt?: string | null });
 
 export interface ApprovalParamInput {
   submissionType: SubmissionType;
@@ -33,6 +36,9 @@ export interface ApprovalParamInput {
   notes?: string;
   createdById: string;
   requestedForId?: string;
-  // assets?: AssetParam[];
-  // signatures?: SignatureParam[];
 }
+
+export type ApprovalPayloads = ApprovalParamInput & {
+  signatures: SignatureParam[]
+  assets: AssetParam[]
+};

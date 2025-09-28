@@ -1,112 +1,181 @@
-// import { AppError } from '@/utils/appError';
-// import { assetRepository } from './repository';
 import { approvalRepository } from '@/modules/approval/repository';
-import { ApprovalParamInput } from './types';
-
-// function generateCode(prefix: string) {
-// 	const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0.12);
-// 	const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
-// 	return `${prefix}-${timestamp}-${randomPart}`;
-// }
+import { ApprovalPayloads, RequestStatus } from './types';
+import { removeObjectKeys } from '@/utils';
+import { AppError } from '@/utils/appError';
 
 export const approvalService = {
-	create: async (params: ApprovalParamInput) => {
+	create: async (params: ApprovalPayloads) => {
+		const {
+			submissionType,
+			status,
+			notes,
+			requestedForId,
+			createdById,
+			signatures,
+			assets
+		} = params;
 
-		const approval = await approvalRepository.create(params);
+		const approval = await approvalRepository.create({
+			submissionType,
+			status,
+			notes,
+			requestedForId,
+			createdById,
+		});
 
-		console.log('approval', approval);
+		const approvalSignatures = await Promise.all(
+			signatures.map(async (signature) => {
+				const result = await approvalRepository.createApprovalSignature(
+					approval.id,
+					signature,
+				);
+				return removeObjectKeys(result, ['approvalId']);
+			})
+		);
 
-		// if (!category) {
-		// 	throw new AppError({ message: 'Category not exist', status: 404, data: { name } });
-		// }
+		const approvalAssets = await Promise.all(
+			assets.map(async (asset) => {
+				const result = await approvalRepository.createApprovalAssets(
+					approval.id,
+					asset,
+				);
+				return removeObjectKeys(result, ['approvalId']);
+			})
+		);
 
-		// const assetBySerialNumber = await assetRepository.findBySerialNumber(serialNumber);
-
-		// if (assetBySerialNumber) {
-		// 	throw new AppError({
-		// 		message: 'Asset serial number already exist', status: 404, data: { serialNumber }
-		// 	});
-		// }
-
-		// const result = await assetRepository.create({
-		// 	name, code: generateCode(category.prefix), serialNumber, isMaintenance, categoryId, image,
-		// });
-
-		// return result;
+		return {
+			...approval,
+			sigantures: approvalSignatures,
+			assets: approvalAssets,
+		};
 	},
-	// get: async (page: number, size: number, search: string) => {
-	// 	const skip = (page - 1) * size;
+	get: async (page: number, size: number, search: string) => {
+		const skip = (page - 1) * size;
 		
-	// 	const where = search
-	// 		? {
-	// 			OR: [
-	// 				{ name: { contains: search } },
-	// 				{ code: { contains: search } },
-	// 				{ serialNumber: { contains: search } },
-	// 			],
-	// 		}
-	// 		: {};
+		const where = search
+			? {
+				OR: [
+					{ submissionType: { contains: search.toUpperCase() } },
+					{ status: { contains: search.toUpperCase() } },
+					{ notes: { contains: search } },
+				],
+			}
+			: {};
 
-	// 	const [assets, total] = await Promise.all([
-	// 		assetRepository.get(skip, size, { ...where, isDeleted: false }),
-	// 		assetRepository.count(where),
-	// 	]);
+		const [approvals, total] = await Promise.all([
+			approvalRepository.get(skip, size, { ...where, isDeleted: false }),
+			approvalRepository.count(where),
+		]);
 
-	// 	return {
-	// 		data: assets,
-	// 		meta: {
-	// 			page,
-	// 			size,
-	// 			total,
-	// 			totalPages: Math.ceil(total / size),
-	// 		},
-	// 	};
-	// },
-	// update: async ({
-	// 	id,
-	// 	name,
-	// 	serialNumber,
-	// 	isMaintenance,
-	// 	categoryId,
-	// 	image,
-	// }: {
-	// 	id: string,
-	// 	name: string,
-	// 	serialNumber: string,
-	// 	isMaintenance: boolean,
-	// 	categoryId: string,
-	// 	image: string,
-	// }) => {
-	// 	const category = await categoryRepository.findById(categoryId);
+		return {
+			data: approvals,
+			meta: {
+				page,
+				size,
+				total,
+				totalPages: Math.ceil(total / size),
+			},
+		};
+	},
+	update: async (params: ApprovalPayloads & { id: string }) => {
+		const approval = await approvalRepository.findById(params.id);
 
-	// 	if (!category) {
-	// 		throw new AppError({ message: 'Category not exist', status: 404, data: { name } });
-	// 	}
+		if (!approval) {
+			throw new AppError({
+				message: 'Approval not exist', status: 404, data: { approvalId: params.id }
+			});
+		}
 
-	// 	const assetById = await assetRepository.findById(id);
-	// 	const assetBySerialNumber = await assetRepository.findBySerialNumber(serialNumber);
+		const {
+			submissionType,
+			status,
+			notes,
+			requestedForId,
+			createdById,
+			signatures,
+			assets
+		} = params;
 
-	// 	if (assetBySerialNumber && assetById.serialNumber !== serialNumber) {
-	// 		throw new AppError({
-	// 			message: 'Asset serial number already exist', status: 404, data: { serialNumber }
-	// 		});
-	// 	}
+		const result = await approvalRepository.update(params.id, {
+			submissionType,
+			status,
+			notes,
+			requestedForId,
+			createdById,
+		});
 
-	// 	const result = await assetRepository.update(id, {
-	// 		name, serialNumber, isMaintenance, categoryId, image,
-	// 	});
+		const approvalSignatures = await Promise.all(
+			signatures.map(async (signature) => {
+				if (signature.id) {
+					const result = await approvalRepository.updateApprovalSignature(
+						signature.id,
+						signature
+					);
 
-	// 	return result;
-	// },
-	// delete: async (id: string) => {
-	// 	const assetById = await assetRepository.findById(id);
+					return removeObjectKeys(result, ['approvalId', 'isDeleted']);
+				} else {
+					const result = await approvalRepository.createApprovalSignature(
+						approval.id,
+						signature
+					);
 
-	// 	if (!assetById) {
-	// 		throw new AppError({ message: 'Asset not exist', status: 404, data: { categoryId: id } });
-	// 	}
+					return removeObjectKeys(result, ['approvalId', 'isDeleted']);
+				}
+			})
+		);
 
-	// 	const result = await assetRepository.delete(id);
+		const approvalAssets = await Promise.all(
+			assets.map(async (asset) => {
+				if (asset.id) {
+					const result = await approvalRepository.updateApprovalAssets(
+						asset.id,
+						asset
+					);
+
+					return removeObjectKeys(result, ['approvalId', 'isDeleted']);
+				} else {
+					const result = await approvalRepository.createApprovalAssets(
+						approval.id,
+						asset
+					);
+
+					return removeObjectKeys(result, ['approvalId', 'isDeleted']);
+				}
+			})
+		);
+
+		return {
+			...result,
+			sigantures: approvalSignatures,
+			assets: approvalAssets,
+		};
+	},
+	updateStatus: async (params: { status: RequestStatus, id: string }) => {
+		const approval = await approvalRepository.findById(params.id);
+
+		if (!approval) {
+			throw new AppError({
+				message: 'Approval not exist', status: 404, data: { approvalId: params.id }
+			});
+		}
+
+		const result = await approvalRepository.updateStatus(params.id, {
+			status: params.status
+		});
+
+		return result;
+	},
+	delete: async (id: string) => {
+		const approvalById = await approvalRepository.findById(id);
+
+		if (!approvalById) {
+			throw new AppError({
+				message: 'Approval not exist', status: 404, data: { approvalId: id }
+			});
+		}
+
+		const result = await approvalRepository.delete(id);
 	
-	// 	return result;
-	// }
+		return result;
+	}
 };

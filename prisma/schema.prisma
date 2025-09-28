@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   STAFF
   GA
+  MANAGER
 }
 
 model User {
@@ -112,26 +113,36 @@ model Approval {
 }
 
 model ApprovalSignature {
-  id          String    @id @default(uuid())
+  id          String      @id @default(uuid())
   email       String?
   name        String?
   image       String?
   signedAt    DateTime? 
 
   approvalId  String
-  approval    Approval  @relation(fields: [approvalId], references: [id])
+  approval    Approval    @relation(fields: [approvalId], references: [id])
 
   userId      String?
-  user        User?     @relation(fields: [userId], references: [id])
+  user        User?       @relation(fields: [userId], references: [id])
 
   updatedAt   DateTime?
+  isDeleted   Boolean     @default(false)
 }
 
 model ApprovalAsset {
-  id          String    @id @default(uuid())
-  approvalId  String
-  assetId     String
+  id            String      @id @default(uuid())
+  name          String?
+  isMaintenance Boolean?    @default(false)
+  serialNumber  String?
+  image         String?
+  categoryId    String?
 
-  approval    Approval  @relation(fields: [approvalId], references: [id])
-  asset       Asset     @relation(fields: [assetId], references: [id])
+  approvalId    String?
+  assetId       String?
+
+  approval      Approval?   @relation(fields: [approvalId], references: [id])
+  asset         Asset?      @relation(fields: [assetId], references: [id])
+
+  updatedAt     DateTime?
+  isDeleted     Boolean     @default(false)
 }

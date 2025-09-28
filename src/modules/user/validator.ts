@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const registerUserSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   email: z.email({ message: 'Invalid email format' }),
-  role: z.enum(['GA', 'STAFF']),
+  role: z.enum(['GA', 'STAFF', 'MANAGER']),
 });
 
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
@@ -23,7 +23,7 @@ export const updateUserSchema = z.object({
     )
     .optional()
     .default([]),
-  role: z.enum(['GA', 'STAFF']),
+  role: z.enum(['GA', 'STAFF', 'MANAGER']),
   isManager: z.boolean().default(false),
   manager: z.string().optional(),
 });
