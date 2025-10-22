@@ -22,13 +22,14 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
     } else if (status >= 400) {
       logger.logInfo(logMessage, traceId, context, { ...meta, level: 'warn' });
     } else {
-      logger.logInfo(logMessage, traceId, context, meta);
+      logger.logInfo(logMessage, traceId, context, { logs: meta });
     }
   });
 
   // Tambahan helper untuk controller / service
   (res as any).addLogMeta = (extra: Record<string, unknown>) => {
-    (res as any).logMeta = { ...((res as any).logMeta || {}), ...extra };
+    if (!(res as any).logMeta) (res as any).logMeta = [];
+    (res as any).logMeta.push(extra);
   };
 
   next();

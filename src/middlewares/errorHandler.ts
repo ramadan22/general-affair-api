@@ -18,13 +18,9 @@ export function errorHandler(
   let errName = '';
   if (err instanceof Error) errName = err.name;
 
-  console.log('errName', err);
-
   logger.logError(err, traceId, `${req.method} ${req.originalUrl}`);
 
   res.setHeader('X-Trace-Id', traceId);
-
-  console.log('errName', errName);
 
   if (err instanceof AppError) {
     return defaultResponse({

@@ -30,16 +30,14 @@ const logFormat = format.combine(
     }
 
     if (Object.keys(meta).length) {
-      log += `\n    ${JSON.stringify(meta)}`;
+      // Pretty-print the meta object (multi-line JSON)
+      const formattedMeta = JSON.stringify(meta, null, isProduction ? 0 : 2);
+      log += `\n${formattedMeta}`;
     }
 
-    // Baris kosong sebagai pemisah
+    // Add blank line separator for readability
     log += '\n';
-
-    return log
-      .replace('{"level":"info"}', '')
-      .replace('{"level":"error"}', '')
-      .replace('{"level":"warn"}', '');
+    return log;
   })
 );
 
@@ -90,7 +88,7 @@ logger.logError = (
     const additional: Record<string, unknown> = extra || {};
     for (const key of Object.getOwnPropertyNames(err)) {
       if (!['message', 'stack', 'name'].includes(key)) {
-        additional[key] = err[key];
+        additional[key] = (err as any)[key];
       }
     }
 
@@ -103,7 +101,10 @@ logger.logError = (
       ...additional,
     });
   } else {
-    const safeMessage = typeof err === 'string' ? err : JSON.stringify(err, null, 2);
+    const safeMessage = typeof err === 'string'
+      ? err
+      : JSON.stringify(err, null, isProduction ? 0 : 2);
+
     logger.error({
       message: safeMessage,
       traceId,
@@ -116,11 +117,16 @@ logger.logError = (
 logger.logInfo = (
   message: string, traceId?: string, context?: string, extra?: Record<string, unknown>
 ) => {
+  // Pretty print for objects
+  const formattedExtra = extra
+    ? JSON.parse(JSON.stringify(extra, null, isProduction ? 0 : 2))
+    : undefined;
+
   logger.info({
     message,
     traceId,
     context,
-    ...extra,
+    ...formattedExtra,
   });
 };
 
