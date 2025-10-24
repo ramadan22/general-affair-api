@@ -2,6 +2,7 @@ import { removeObjectKeys } from '@/utils';
 import { userRepository } from './repository';
 import { AppError } from '@/utils/appError';
 import bcrypt from 'bcrypt';
+import { Role } from '@/constants/Role';
 
 function generateNumericPassword(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -41,7 +42,7 @@ export const userService = {
 
     return user;
   },
-  register: async (firstName: string, email: string, role: 'GA' | 'STAFF') => {
+  register: async (firstName: string, email: string, role: Role) => {
 
     const existingUser = await userRepository.findByEmail(email);
     

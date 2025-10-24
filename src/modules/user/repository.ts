@@ -1,4 +1,5 @@
 import { prisma } from '@/config/database';
+import { Role } from '@/constants/Role';
 
 export const userRepository = {
   get: (skip: number, size: number, where: object) => {
@@ -16,8 +17,6 @@ export const userRepository = {
         socialMedia: true,
         role: true,
         isActive: true,
-        isManager: true,
-        manager: true,
         updatedAt: true,
         createdAt: true,
       }
@@ -32,7 +31,7 @@ export const userRepository = {
   count: (where: object) => {
     return prisma.user.count({ where });
   },
-  create: (data: { firstName: string; email: string; password: string; role: 'GA' | 'STAFF' }) => {
+  create: (data: { firstName: string; email: string; password: string; role: Role }) => {
     return prisma.user.create({
       data,
       select: {
@@ -75,8 +74,15 @@ export const userRepository = {
         isActive: true,
         socialMedia: true,
         role: true,
-        isManager: true,
-        manager: true,
+        teamLead: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: true,
+          },
+        },
         updatedAt: true,
         createdAt: true,
       },

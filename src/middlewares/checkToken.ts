@@ -4,11 +4,13 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { getBearerToken } from '@/utils';
 import { AppError } from '@/utils/appError';
+import { Role } from '@/constants/Role';
+
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export interface AuthRequest extends Request {
-  user?: { id: string; email: string; role: 'GA' | 'STAFF' };
+  user?: { id: string; email: string; role: Role };
 }
 
 export const checkUserToken = async (

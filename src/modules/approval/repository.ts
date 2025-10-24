@@ -20,8 +20,6 @@ export const approvalRepository = {
 						socialMedia: true,
 						role: true,
 						isActive: true,
-						isManager: true,
-						manager: true,
 					}
 				},
 				requestedFor: {
@@ -34,8 +32,6 @@ export const approvalRepository = {
 						socialMedia: true,
 						role: true,
 						isActive: true,
-						isManager: true,
-						manager: true,
 					}
 				},
 				createdAt: true,
@@ -72,8 +68,6 @@ export const approvalRepository = {
 						socialMedia: true,
 						role: true,
 						isActive: true,
-						isManager: true,
-						manager: true,
 					}
 				},
 				requestedFor: {
@@ -86,8 +80,6 @@ export const approvalRepository = {
 						socialMedia: true,
 						role: true,
 						isActive: true,
-						isManager: true,
-						manager: true,
 					}
 				},
 				createdAt: true,
@@ -141,8 +133,6 @@ export const approvalRepository = {
 						socialMedia: true,
 						role: true,
 						isActive: true,
-						isManager: true,
-						manager: true,
 					}
 				},
 				requestedFor: {
@@ -155,8 +145,6 @@ export const approvalRepository = {
 						socialMedia: true,
 						role: true,
 						isActive: true,
-						isManager: true,
-						manager: true,
 					}
 				},
 				createdAt: true,
@@ -174,8 +162,6 @@ export const approvalRepository = {
 			socialMedia: true,
 			role: true,
 			isActive: true,
-			isManager: true,
-			manager: true,
 		};
 
 		return prisma.approval.findMany({

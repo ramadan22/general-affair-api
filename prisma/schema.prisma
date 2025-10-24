@@ -10,6 +10,8 @@ datasource db {
 enum Role {
   STAFF
   GA
+  COORDINATOR
+  LEAD
   MANAGER
 }
 
@@ -21,13 +23,15 @@ model User {
   image              String?
   password           String
   socialMedia        String[]             
-  role               Role                 @default(GA)
-  isActive           Boolean              @default(false)
-  isManager          Boolean              @default(false)
-  manager            String?              // user id manager            
+  role               Role                 @default(STAFF)
+  isActive           Boolean              @default(false)         
   updatedAt          DateTime?            
   createdAt          DateTime             @default(now())
   isDeleted          Boolean              @default(false)
+
+  teamLeadId         String?
+  teamLead           User?                @relation("UserTeamLead", fields: [teamLeadId], references: [id])
+  teamMembers        User[]               @relation("UserTeamLead")
 
   // Relations
   approvalsRequested Approval[]           @relation("RequestedForApprovals")

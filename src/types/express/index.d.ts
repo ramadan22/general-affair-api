@@ -1,5 +1,6 @@
 // types/express.d.ts
 import 'express-serve-static-core';
+import { Role } from '@/constants/Role';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -7,7 +8,7 @@ declare module 'express-serve-static-core' {
     user?: {
       id: string;
       email: string;
-      role: 'GA' | 'STAFF'
+      role: Role
     }
   }
 
