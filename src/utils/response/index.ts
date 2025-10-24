@@ -7,8 +7,10 @@ export const defaultResponse = ({
   data = null,
   meta = null,
   traceId = '',
+  success,
 }: DefaultResponseParams) => {
   const payload = {
+    success,
     status,
     message,
     data,
