@@ -5,6 +5,7 @@ import uploadRoute from '@/modules/upload/routes';
 import categoryRoute from '@/modules/category/route';
 import assetsRoute from '@/modules/assets/route';
 import approvalRoute from '@/modules/approval/route';
+import historyRoute from '@/modules/history/route';
 import { requestLogger } from '@/middlewares/requestLogger';
 import { errorHandler } from '@/middlewares/errorHandler';
 import { traceIdMiddleware } from './middlewares/traceId';
@@ -25,6 +26,7 @@ app.use('/api/upload', uploadRoute);
 app.use('/api/category', categoryRoute);
 app.use('/api/assets', assetsRoute);
 app.use('/api/approval', approvalRoute);
+app.use('/api/history', historyRoute);
 
 const uploadDir = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(uploadDir));
