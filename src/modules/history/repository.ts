@@ -1,13 +1,16 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, HistoryType } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const approvalHistoryRepository = {
   create(data: {
-    type: number;
+    type: HistoryType;
     description?: string;
     assetId?: string;
     approvalId?: string;
     performedById?: string;
+    fromUserId?: string;
+    toUserId?: string;
+    metadata?: object;
   }) {
     return prisma.approvalHistory.create({
       data,
