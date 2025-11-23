@@ -62,6 +62,8 @@ model Category {
   createdAt  DateTime  @default(now())
   isDeleted  Boolean   @default(false)
   assets     Asset[]
+
+  ApprovalAsset ApprovalAsset[]
 }
 
 model Asset {
@@ -90,10 +92,8 @@ enum SubmissionType {
 enum RequestStatus {
   DRAFT
   WAITING_APPROVAL
-  READY_ON_PROGRESS
-  ON_PROGRESS
   DONE
-  ORDERED
+  REJECT
 }
 
 model Approval {
@@ -121,6 +121,8 @@ model ApprovalSignature {
   email       String?
   name        String?
   image       String?
+  positionX   Int?
+  positionY   Int?
   signedAt    DateTime? 
 
   approvalId  String
@@ -139,11 +141,12 @@ model ApprovalAsset {
   isMaintenance Boolean?    @default(false)
   serialNumber  String?
   image         String?
-  categoryId    String?
 
+  categoryId    String?
   approvalId    String?
   assetId       String?
 
+  category      Category?   @relation(fields: [categoryId], references: [id])
   approval      Approval?   @relation(fields: [approvalId], references: [id])
   asset         Asset?      @relation(fields: [assetId], references: [id])
 
