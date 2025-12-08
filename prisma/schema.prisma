@@ -16,27 +16,28 @@ enum Role {
 }
 
 model User {
-  id                 String               @id @default(uuid())
-  firstName          String
-  lastName           String?
-  email              String               @unique
-  image              String?
-  password           String
-  socialMedia        String[]             
-  role               Role                 @default(STAFF)
-  isActive           Boolean              @default(false)         
-  updatedAt          DateTime?            
-  createdAt          DateTime             @default(now())
-  isDeleted          Boolean              @default(false)
+  id          String    @id @default(uuid())
+  firstName   String
+  lastName    String?
+  email       String    @unique
+  image       String?
+  password    String
+  socialMedia String[]
+  role        Role      @default(STAFF)
+  isActive    Boolean   @default(false)
+  updatedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  isDeleted   Boolean   @default(false)
 
-  teamLeadId         String?
-  teamLead           User?                @relation("UserTeamLead", fields: [teamLeadId], references: [id])
-  teamMembers        User[]               @relation("UserTeamLead")
+  teamLeadId  String?
+  teamLead    User?   @relation("UserTeamLead", fields: [teamLeadId], references: [id])
+  teamMembers User[]  @relation("UserTeamLead")
 
   // Relations
-  approvalsRequested Approval[]           @relation("RequestedForApprovals")
-  approvalsCreated   Approval[]           @relation("CreatedApprovals")
-  signatures         ApprovalSignature[]  // user bisa tanda tangan banyak approval
+  approvalsRequested Approval[]          @relation("RequestedForApprovals")
+  approvalsCreated   Approval[]          @relation("CreatedApprovals")
+  signatures         ApprovalSignature[] // user bisa tanda tangan banyak approval
+  histories          ApprovalHistory[]   @relation("UserToHistory")
 }
 
 model Upload {
@@ -67,19 +68,20 @@ model Category {
 }
 
 model Asset {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
-  code          String   @unique
-  isMaintenance Boolean  @default(false)
+  code          String    @unique
+  isMaintenance Boolean   @default(false)
   serialNumber  String?
   image         String?
   categoryId    String
-  category      Category @relation(fields: [categoryId], references: [id])
+  category      Category  @relation(fields: [categoryId], references: [id])
   updatedAt     DateTime?
-  createdAt     DateTime @default(now())
-  isDeleted     Boolean  @default(false)
+  createdAt     DateTime  @default(now())
+  isDeleted     Boolean   @default(false)
 
   ApprovalAsset ApprovalAsset[]
+  histories     ApprovalHistory[] @relation("AssetToHistory")
 }
 
 enum SubmissionType {
@@ -97,23 +99,24 @@ enum RequestStatus {
 }
 
 model Approval {
-  id             String               @id @default(uuid())
+  id             String         @id @default(uuid())
   submissionType SubmissionType
-  status         RequestStatus        @default(DRAFT)
+  status         RequestStatus  @default(DRAFT)
   notes          String?
 
-  createdById    String
-  createdBy      User                 @relation("CreatedApprovals", fields: [createdById], references: [id])
+  createdById String
+  createdBy   User   @relation("CreatedApprovals", fields: [createdById], references: [id])
 
   requestedForId String?
-  requestedFor   User?                @relation("RequestedForApprovals", fields: [requestedForId], references: [id])
+  requestedFor   User?   @relation("RequestedForApprovals", fields: [requestedForId], references: [id])
 
-  assets         ApprovalAsset[]
-  signatures     ApprovalSignature[]  
+  assets     ApprovalAsset[]
+  signatures ApprovalSignature[]
+  histories  ApprovalHistory[]   @relation("ApprovalToHistory")
 
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime?      
-  isDeleted      Boolean              @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  isDeleted Boolean   @default(false)
 }
 
 model ApprovalSignature {
@@ -125,20 +128,20 @@ model ApprovalSignature {
   positionY   Int?
   signedAt    DateTime? 
 
-  approvalId  String
-  approval    Approval    @relation(fields: [approvalId], references: [id])
+  approvalId String
+  approval   Approval @relation(fields: [approvalId], references: [id])
 
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
 
-  updatedAt   DateTime?
-  isDeleted   Boolean     @default(false)
+  updatedAt DateTime?
+  isDeleted Boolean   @default(false)
 }
 
 model ApprovalAsset {
-  id            String      @id @default(uuid())
+  id            String   @id @default(uuid())
   name          String?
-  isMaintenance Boolean?    @default(false)
+  isMaintenance Boolean? @default(false)
   serialNumber  String?
   image         String?
 
@@ -150,6 +153,32 @@ model ApprovalAsset {
   approval      Approval?   @relation(fields: [approvalId], references: [id])
   asset         Asset?      @relation(fields: [assetId], references: [id])
 
-  updatedAt     DateTime?
-  isDeleted     Boolean     @default(false)
+  updatedAt DateTime?
+  isDeleted Boolean   @default(false)
+}
+
+enum HistoryType {
+  APPROVAL
+  ASSIGNMENT
+}
+
+model ApprovalHistory {
+  id            String      @id @default(uuid())
+  assetId       String?
+  approvalId    String?
+  type          HistoryType
+  description   String?
+  fromUserId    String?
+  toUserId      String?
+  performedById String?
+  metadata      Json?
+  createdAt     DateTime    @default(now())
+
+  approval    Approval? @relation("ApprovalToHistory", fields: [approvalId], references: [id])
+  asset       Asset?    @relation("AssetToHistory", fields: [assetId], references: [id])
+  performedBy User?     @relation("UserToHistory", fields: [performedById], references: [id])
+
+  @@index([assetId])
+  @@index([approvalId])
+  @@index([type])
 }
