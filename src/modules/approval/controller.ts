@@ -45,7 +45,13 @@ export async function get(req: Request, res: Response, next: NextFunction) {
 		const size = Number(req.query.limit) || 10;
 		const keyword = (req.query.keyword as string) || '';
 
-		const result = await approvalService.get(page, size, keyword);
+		const result = await approvalService.get({
+			page,
+			size,
+			search: keyword,
+			userId: req.user.id,
+			role: req.user.role,
+		});
 
 		return defaultResponse({
 			response: res,
@@ -231,3 +237,32 @@ export async function getReviewedPosition(req: Request, res: Response, next: Nex
   }
 }
 
+export async function signApproval(req: Request, res: Response, next: NextFunction) {
+  try {
+    await approvalService.signApproval({ id: req.params.id, image: req.body.image });
+		await approvalService.checkAndUpdate({ id: req.body.approvalId });
+
+    return defaultResponse({
+      response: res,
+      success: true,
+      status: 200,
+      message: 'Sign approval successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getPreviousSignature(req: Request, res: Response, next: NextFunction) {
+	const result = await approvalService.getPreviousSignature({ userId: req.user.id });
+
+	return defaultResponse({
+		response: res,
+		success: true,
+		status: 200,
+		message: 'Get previous signature successfully',
+		data: result?.image ? {
+			image: result.image,
+		} : null,
+	});
+}

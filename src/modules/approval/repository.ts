@@ -380,4 +380,28 @@ export const approvalRepository = {
       },
     });
   },
+  signApproval: (id: string, data: { image: string }) => {
+    return prisma.approvalSignature.update({
+      data: { ...data, signedAt: new Date(), updatedAt: new Date() },
+      where: { id, isDeleted: false },
+    });
+  },
+  findLatestSignature: async (userId: string) => {
+    return prisma.approvalSignature.findFirst({
+      where: {
+        userId,
+        isDeleted: false,
+        image: {
+          not: null,
+        },
+        approval: {
+          status: 'DONE',
+          isDeleted: false,
+        },
+      },
+      orderBy: {
+        signedAt: 'desc',
+      },
+    });
+  }
 };

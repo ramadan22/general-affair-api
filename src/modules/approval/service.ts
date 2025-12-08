@@ -6,6 +6,42 @@ import { RequestStatus } from '@/constants/Approval';
 import { userService } from '@/modules/user/service';
 import { formatDateToWIB } from '@/lib/dateFns';
 import { id } from 'date-fns/locale';
+import { Role } from '@/constants/Role';
+
+const buildApprovalWhere = (userId: string, role: Role, search?: string) => {
+  const searchFilter = search
+    ? {
+        OR: [
+          { submissionType: { contains: search.toUpperCase() } },
+          { status: { contains: search.toUpperCase() } },
+          { notes: { contains: search } },
+        ],
+      }
+    : {};
+
+  // 👉 Role GA = full access
+  if (role === Role.GA) {
+    return {
+      ...searchFilter,
+      isDeleted: false,
+    };
+  }
+
+  // 👉 Role selain GA = hanya data yang berhubungan dengan user
+  return {
+    ...searchFilter,
+    AND: [
+      { isDeleted: false },
+      {
+        OR: [
+          { createdById: userId },
+          { requestedForId: userId },
+          { signatures: { some: { userId } } },
+        ],
+      },
+    ],
+  };
+};
 
 export const approvalService = {
   create: async (params: ApprovalPayloads) => {
@@ -64,29 +100,39 @@ export const approvalService = {
       assets: approvalAssets,
     };
   },
-  get: async (page: number, size: number, search: string) => {
+  get: async ({
+    page,
+    size,
+    search,
+    userId,
+    role,
+  }: {
+    page: number;
+    size: number;
+    search: string;
+    userId: string;
+    role: Role;
+  }) => {
     const skip = (page - 1) * size;
 
-    const where = search
-      ? {
-          OR: [
-            { submissionType: { contains: search.toUpperCase() } },
-            { status: { contains: search.toUpperCase() } },
-            { notes: { contains: search } },
-          ],
-        }
-      : {};
+    const where = buildApprovalWhere(userId, role, search);
 
     const [approvals, total] = await Promise.all([
       approvalRepository.get(skip, size, { ...where, isDeleted: false }),
       approvalRepository.count(where),
     ]);
 
-    const mappedApprovals = approvals.map((item) => {
+    const mappedApprovals = approvals.map(item => {
+      const signatures = item.signatures.map(signature => ({
+        ...signature,
+        signedAt: signature.signedAt !== null ? formatDateToWIB(`${signature.signedAt}`) : null
+      }));
+
       return {
         ...item,
         createdAt: formatDateToWIB(`${item.createdAt}`),
         updatedAt: formatDateToWIB(`${item.updatedAt}`),
+        signatures,
       };
     });
 
@@ -253,4 +299,25 @@ export const approvalService = {
 
     return approval;
   },
+  signApproval: async (params: { id: string, image: string }) => {
+    const result = await approvalRepository.signApproval(params.id, {
+      image: params.image,
+    });
+
+    return result;
+  },
+  checkAndUpdate: async (params: { id: string }) => {
+    const approvalDetail = await approvalRepository.findDetailById(params.id);
+    const unSign = approvalDetail.signatures.find(item => !item.image || !item.signedAt);
+
+    if (!unSign) {
+      await approvalRepository.updateStatus(params.id, {
+        status: RequestStatus.DONE,
+      });
+    }
+  },
+  getPreviousSignature: async (params: { userId: string }) => {
+    const signature = await approvalRepository.findLatestSignature(params.userId);
+    return signature;
+  }
 };
