@@ -1,3 +1,5 @@
+// src/middlewares/upload.ts
+
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -44,6 +46,7 @@ const storage = multer.diskStorage({
 
     cb(null, folder);
   },
+
   filename: (_, file, cb) => {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     cb(null, uniqueSuffix + path.extname(file.originalname));
@@ -55,6 +58,7 @@ export const uploadDynamic = multer({
   limits: {
     fileSize: MAX_SIZE_MB * 1024 * 1024,
   },
+
   fileFilter: (req, file, cb) => {
     const type = (req.body.type || req.query.type) as string;
 

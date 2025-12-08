@@ -55,14 +55,16 @@ model Upload {
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String
-  prefix    String
-  isDevice  Boolean   @default(false)
-  updatedAt DateTime?
-  createdAt DateTime  @default(now())
-  isDeleted Boolean   @default(false)
-  assets    Asset[]
+  id         String   @id @default(uuid())
+  name       String
+  prefix     String
+  isDevice   Boolean   @default(false)
+  updatedAt  DateTime?   
+  createdAt  DateTime  @default(now())
+  isDeleted  Boolean   @default(false)
+  assets     Asset[]
+
+  ApprovalAsset ApprovalAsset[]
 }
 
 model Asset {
@@ -92,10 +94,8 @@ enum SubmissionType {
 enum RequestStatus {
   DRAFT
   WAITING_APPROVAL
-  READY_ON_PROGRESS
-  ON_PROGRESS
   DONE
-  ORDERED
+  REJECT
 }
 
 model Approval {
@@ -120,11 +120,13 @@ model Approval {
 }
 
 model ApprovalSignature {
-  id       String    @id @default(uuid())
-  email    String?
-  name     String?
-  image    String?
-  signedAt DateTime?
+  id          String      @id @default(uuid())
+  email       String?
+  name        String?
+  image       String?
+  positionX   Int?
+  positionY   Int?
+  signedAt    DateTime? 
 
   approvalId String
   approval   Approval @relation(fields: [approvalId], references: [id])
@@ -142,13 +144,14 @@ model ApprovalAsset {
   isMaintenance Boolean? @default(false)
   serialNumber  String?
   image         String?
+
   categoryId    String?
+  approvalId    String?
+  assetId       String?
 
-  approvalId String?
-  assetId    String?
-
-  approval Approval? @relation(fields: [approvalId], references: [id])
-  asset    Asset?    @relation(fields: [assetId], references: [id])
+  category      Category?   @relation(fields: [categoryId], references: [id])
+  approval      Approval?   @relation(fields: [approvalId], references: [id])
+  asset         Asset?      @relation(fields: [assetId], references: [id])
 
   updatedAt DateTime?
   isDeleted Boolean   @default(false)

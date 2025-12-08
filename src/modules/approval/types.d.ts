@@ -1,12 +1,4 @@
-export type SubmissionType = 'PROCUREMENT'; // | 'MAINTENANCE' | 'WRITE_OFF'  | 'ASSIGNMENT';
-
-export type RequestStatus =
-  | 'DRAFT'
-  | 'WAITING_APPROVAL'
-  | 'READY_ON_PROGRESS'
-  | 'ON_PROGRESS'
-  | 'DONE'
-  | 'ORDERED';
+import { RequestStatus, SubmissionType } from '@/constants/Approval';
 
 export interface AssetParam {
   id?: string;
@@ -19,7 +11,13 @@ export interface AssetParam {
   isDeleted?: boolean;
 }
 
-export interface SignatureParam {
+export interface SignaturePosition {
+  id?: string;
+  positionX: number;
+  positionY: number;
+}
+
+export interface SignatureParam extends SignaturePosition {
   id?: string;
   userId: string
   email: string;
