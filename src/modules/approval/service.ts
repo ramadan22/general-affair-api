@@ -61,7 +61,7 @@ export const approvalService = {
       submissionType,
       status,
       notes,
-      requestedForId,
+      requestedForId: requestedForId || null,
       createdById,
     });
 

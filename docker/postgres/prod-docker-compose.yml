@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  backend:
+    image: node:20-alpine
+    container_name: backend_app
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npm run dev
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      BASE_URL: http://localhost:3001
+
+      DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/app_ga
+
+      JWT_SECRET: OFWUkMsv9nF6Z5kuIxFXfgQGKNaGR4jaYe0wlBhWV78=
+      JWT_SECRET_REFRESH: shEsWQr2qtD89HLOBc9eTnQB1EQagWry8Wq75eGbWFI=
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: my_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: app_ga
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:

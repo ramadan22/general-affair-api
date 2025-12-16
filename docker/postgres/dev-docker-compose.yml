@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: app_ga
     ports:
-      - "5433:5432"
+      - "127.0.0.1:3001:3001"
+
     volumes:
       - data:/var/lib/postgresql/data
 
