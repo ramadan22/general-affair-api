@@ -1,0 +1,227 @@
+import { approvalService } from './service';
+import { approvalParamSchema, approverQuerySchema, updateStatusSchema, } from '@/modules/approval/validator';
+import { AppError } from '@/utils/appError';
+import { flattenZodErrors } from '@/utils/flattenZod';
+import { defaultResponse } from '@/utils/response';
+import { RequestStatus } from '@/constants/Approval';
+export async function create(req, res, next) {
+    try {
+        const validation = approvalParamSchema.safeParse(req.body);
+        if (!validation.success) {
+            return next(new AppError({
+                message: 'Validation error',
+                status: 400,
+                data: flattenZodErrors(validation.error),
+            }));
+        }
+        const { id } = req.user;
+        const result = await approvalService.create({ ...req.body, createdById: id });
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 201,
+            message: 'Approval create successfully',
+            data: result,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function get(req, res, next) {
+    try {
+        const page = Number(req.query.page) || 1;
+        const size = Number(req.query.limit) || 10;
+        const keyword = req.query.keyword || '';
+        const result = await approvalService.get({
+            page,
+            size,
+            search: keyword,
+            userId: req.user.id,
+            role: req.user.role,
+        });
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Get approvals successfully',
+            data: result.data,
+            meta: result.meta,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function update(req, res, next) {
+    try {
+        const validation = approvalParamSchema.safeParse(req.body);
+        if (!validation.success) {
+            return next(new AppError({
+                message: 'Validation error',
+                status: 400,
+                data: flattenZodErrors(validation.error),
+            }));
+        }
+        const approvalId = req.params.id;
+        const result = await approvalService.update({ ...req.body, id: approvalId });
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Process approval successfully',
+            data: result,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function updateStatus(req, res, next) {
+    try {
+        const validation = updateStatusSchema.safeParse(req.body);
+        if (!validation.success) {
+            return next(new AppError({
+                message: 'Validation error',
+                status: 400,
+                data: flattenZodErrors(validation.error),
+            }));
+        }
+        const approvalId = req.params.id;
+        const result = await approvalService.updateStatus({ ...req.body, id: approvalId });
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Update approval status successfully',
+            data: result,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function updatePosition(req, res, next) {
+    try {
+        // const validation = updateStatusSchema.safeParse(req.body);
+        // if (!validation.success) {
+        // 	return next(
+        // 		new AppError({
+        // 			message: 'Validation error',
+        // 			status: 400,
+        // 			data: flattenZodErrors(validation.error),
+        // 		})
+        // 	);
+        // }
+        const approvalId = req.params.id;
+        const result = await approvalService.updatePosition({ ...req.body, id: approvalId });
+        await approvalService.updateStatus({ status: RequestStatus.WAITING_APPROVAL, id: approvalId });
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Update signature position successfully',
+            data: result,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function deleteApproval(req, res, next) {
+    try {
+        const id = req.params.id;
+        await approvalService.delete(id);
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Delete approval successfully',
+            data: null,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function getApprovers(req, res, next) {
+    try {
+        const validation = approverQuerySchema.safeParse(req.query);
+        if (!validation.success) {
+            return next(new AppError({
+                message: 'Validation error',
+                status: 400,
+                data: flattenZodErrors(validation.error),
+            }));
+        }
+        const keyword = req.query.keyword || '';
+        const result = await approvalService.getApprovers(keyword);
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Get approvers successfully',
+            data: result,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}
+export async function getDetail(req, res, next) {
+    const result = await approvalService.getDetail(req.params.id);
+    return defaultResponse({
+        response: res,
+        success: true,
+        status: 200,
+        message: 'Get approval successfully',
+        data: result,
+    });
+}
+export async function getReviewedPosition(req, res, next) {
+    try {
+        const result = await approvalService.getDetail(req.params.id);
+        const signatures = result?.signatures ?? [];
+        const isReviewed = signatures.length > 0 &&
+            signatures.every(s => s.positionX !== null && s.positionY !== null);
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Get signature reviewed successfully',
+            data: {
+                isReviewed,
+            },
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+}
+export async function signApproval(req, res, next) {
+    try {
+        await approvalService.signApproval({ id: req.params.id, image: req.body.image });
+        await approvalService.checkAndUpdate({ id: req.body.approvalId });
+        return defaultResponse({
+            response: res,
+            success: true,
+            status: 200,
+            message: 'Sign approval successfully',
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+}
+export async function getPreviousSignature(req, res, next) {
+    const result = await approvalService.getPreviousSignature({ userId: req.user.id });
+    return defaultResponse({
+        response: res,
+        success: true,
+        status: 200,
+        message: 'Get previous signature successfully',
+        data: result?.image ? {
+            image: result.image,
+        } : null,
+    });
+}

@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import * as approvalController from './controller';
+import { checkUserToken } from '@/middlewares/checkToken';
+const router = Router();
+router.post('/', checkUserToken, approvalController.create);
+router.get('/', checkUserToken, approvalController.get);
+router.get('/detail/:id', checkUserToken, approvalController.getDetail);
+router.put('/:id', checkUserToken, approvalController.update);
+router.put('/update-status/:id', checkUserToken, approvalController.updateStatus);
+router.delete('/:id', checkUserToken, approvalController.deleteApproval);
+router.get('/getApprovers', checkUserToken, approvalController.getApprovers);
+router.put('/update-position/:id', checkUserToken, approvalController.updatePosition);
+router.post('/sign-approval/:id', checkUserToken, approvalController.signApproval);
+router.get('/get-previous-signature', checkUserToken, approvalController.getPreviousSignature);
+router.get('/signature-reviewed-position/:id', checkUserToken, approvalController.getReviewedPosition);
+export default router;

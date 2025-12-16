@@ -1,8 +1,9 @@
+import { $Enums } from '@prisma/client';
 import { approvalHistoryRepository } from './repository';
 
 export const approvalHistoryService = {
   async createHistory(data: {
-    type: number;
+    type: $Enums.HistoryType;
     description?: string;
     assetId?: string;
     approvalId?: string;
