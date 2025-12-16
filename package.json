@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch -r tsconfig-paths/register src/server.ts",
-    "build": "tsc",
+    "build": "tsup src/server.ts --format esm --platform node --out-dir dist",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",
     "lint": "npm run type-check && eslint . --ext .ts",
@@ -44,6 +44,7 @@
     "eslint": "^9.34.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }
