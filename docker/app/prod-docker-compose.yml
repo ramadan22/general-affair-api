@@ -15,3 +15,7 @@ services:
       DATABASE_URL: postgresql://postgres:mypassword@my_postgres:5432/app_ga
       JWT_SECRET: OFWUkMsv9nF6Z5kuIxFXfgQGKNaGR4jaYe0wlBhWV78=
       JWT_SECRET_REFRESH: shEsWQr2qtD89HLOBc9eTnQB1EQagWry8Wq75eGbWFI=
+
+networks:
+  ga_network:
+    external: true
