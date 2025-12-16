@@ -1,7 +1,7 @@
 services:
   backend:
     build:
-      context: ..
+      context: ../..
       dockerfile: ./Dockerfile.prod
     image: backend_app:prod
     container_name: backend_app
