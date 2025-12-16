@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backend_app:latest
+    container_name: backend_app
+    restart: always
+    working_dir: /app
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      BASE_URL: http://127.0.0.1:3001
+
+      DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/app_ga
+
+      JWT_SECRET: OFWUkMsv9nF6Z5kuIxFXfgQGKNaGR4jaYe0wlBhWV78=
+      JWT_SECRET_REFRESH: shEsWQr2qtD89HLOBc9eTnQB1EQagWry8Wq75eGbWFI=
+    depends_on:
+      - postgres
