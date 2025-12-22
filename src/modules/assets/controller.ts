@@ -100,3 +100,21 @@ export async function deleteAsset(req: Request, res: Response, next: NextFunctio
 		next(err);
 	}
 }
+
+export async function scanByCode(req: Request, res: Response, next: NextFunction) {
+	try {
+		const { code } = req.params;
+		const data = await assetService.scanByCode(code);
+
+		return defaultResponse({
+			response: res,
+			success: true,
+			status: 200,
+			message: 'Asset found successfully',
+			data,
+		});
+	} catch (err) {
+		next(err);
+	}
+}
+

@@ -2,13 +2,13 @@ import { prisma } from '@/config/database';
 
 export const assetRepository = {
 	create: (data: {
-    name: string;
-    code: string;
-    serialNumber?: string;
-    isMaintenance?: boolean;
-    image?: string | null;
-    categoryId: string;
-  }) => {
+		name: string;
+		code: string;
+		serialNumber?: string;
+		isMaintenance?: boolean;
+		image?: string | null;
+		categoryId: string;
+	}) => {
 		return prisma.asset.create({
 			data,
 			select: {
@@ -162,6 +162,35 @@ export const assetRepository = {
 	findBySerialNumber: (serialNumber: string) => {
 		return prisma.asset.findFirst({
 			where: { serialNumber, isDeleted: false },
+		});
+	},
+	findByCodeWithDetails: (code: string) => {
+		return prisma.asset.findFirst({
+			where: {
+				code: {
+					equals: code,
+					mode: 'insensitive',
+				},
+				isDeleted: false,
+			},
+			select: {
+				id: true,
+				name: true,
+				code: true,
+				serialNumber: true,
+				image: true,
+				isMaintenance: true,
+				createdAt: true,
+				updatedAt: true,
+				category: {
+					select: {
+						id: true,
+						name: true,
+						prefix: true,
+						isDevice: true,
+					},
+				},
+			},
 		});
 	},
 };

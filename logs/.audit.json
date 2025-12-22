@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\prayogo\\repository\\general-affair-api\\logs\\.audit.json",
+    "files": [
+        {
+            "date": 1766374455526,
+            "name": "D:\\prayogo\\repository\\general-affair-api\\logs\\app-2025-12-22.log",
+            "hash": "9628cee9c222a99d4128892b24f84c785bbda281154a30f10de1fd9a462f0d2a"
+        }
+    ],
+    "hashType": "sha256"
+}
