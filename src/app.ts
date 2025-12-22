@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import userRouter from '@/modules/user/route';
 import authenticationRoute from '@/modules/authentication/route';
 import uploadRoute from '@/modules/upload/routes';
@@ -13,6 +14,13 @@ import path from 'path';
 
 const app = express();
 
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    process.env.FRONTEND_URL || '',
+  ],
+  credentials: true,
+}));
 
 // middleware global
 app.use(traceIdMiddleware);
@@ -28,9 +36,11 @@ app.use('/api/assets', assetsRoute);
 app.use('/api/approval', approvalRoute);
 app.use('/api/history', historyRoute);
 
+// static
 const uploadDir = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(uploadDir));
 
+// error handler
 app.use(errorHandler);
 
 export default app;
