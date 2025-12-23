@@ -1,6 +1,9 @@
 import { authenticationRepository } from './repository';
 import { AppError } from '@/utils/appError';
 import bcrypt from 'bcrypt';
+import { resetPassword } from './controller';
+import { userRepository } from '../user/repository';
+import { generateNumericPassword } from '@/utils';
 
 export const authenticationService = {
 	findUserByEmail: async (email: string) => {
@@ -37,6 +40,23 @@ export const authenticationService = {
     }
 
 		return user;
+	},
+	resetPassword: async (id: string) => {
+		const user = await userRepository.findById(id);
+
+		if (!user) {
+			throw new AppError({ message: 'User not exist', status: 404, data: { id } });
+		}
+
+		const plainPassword = generateNumericPassword();
+		const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+		const result = await userRepository.update(id, { isActive: false, password: hashedPassword });
+
+		return {
+			...result,
+			plainPassword,
+		};
 	},
 	updateNewPassword: async ({
 		id,

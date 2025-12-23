@@ -174,3 +174,19 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
     next(err);
   }
 }
+
+export async function resetPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await authenticationService.resetPassword(req.body.id);
+
+    return defaultResponse({
+      response: res,
+      success: true,
+      status: 200,
+      message: 'Reset password successfully',
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
+}

@@ -11,5 +11,6 @@ router.put('/:id', checkUserToken, userController.updateUser);
 router.post('/register', userController.register);
 router.put('/update-profile', checkUserToken, userController.updateProfile);
 router.get('/profile', checkUserToken, userController.getProfile);
+router.get('/profile/:id', checkUserToken, userController.getProfile);
 
 export default router;

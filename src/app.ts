@@ -10,6 +10,8 @@ import historyRoute from '@/modules/history/route';
 import { requestLogger } from '@/middlewares/requestLogger';
 import { errorHandler } from '@/middlewares/errorHandler';
 import { traceIdMiddleware } from './middlewares/traceId';
+import previewRouter from '@/templates/preview';
+import sendEmailRoute from '@/modules/send-email/router';
 import path from 'path';
 
 const app = express();
@@ -35,6 +37,10 @@ app.use('/api/category', categoryRoute);
 app.use('/api/assets', assetsRoute);
 app.use('/api/approval', approvalRoute);
 app.use('/api/history', historyRoute);
+
+app.use('/api/send-email', sendEmailRoute);
+app.use('/preview-template-email', previewRouter);
+
 
 // static
 const uploadDir = path.join(process.cwd(), 'uploads');

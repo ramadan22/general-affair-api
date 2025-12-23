@@ -46,6 +46,8 @@ export const userRepository = {
     });
   },
   update: (id, data) => {
+    console.log('repository user ', data);
+
     return prisma.user.update({
       data,
       where: { id },
@@ -55,6 +57,8 @@ export const userRepository = {
         lastName: true,
         image: true,
         socialMedia: true,
+        isActive: true,
+        email: true,
         role: true,
         updatedAt: true,
       },
@@ -71,6 +75,7 @@ export const userRepository = {
         firstName: true,
         lastName: true,
         image: true,
+        email: true,
         isActive: true,
         socialMedia: true,
         role: true,
