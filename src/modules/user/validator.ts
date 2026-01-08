@@ -12,7 +12,7 @@ export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export const updateUserSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  image: z.url('Image is required and use valid url'),
+  imageId: z.string().min(1, 'Image is required'),
   socialMedia: z
     .array(
       z.object({

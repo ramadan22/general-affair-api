@@ -41,6 +41,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       isActive: user?.isActive,
     };
 
+    console.log('JWT_SECRET', JWT_SECRET);
+    console.log('JWT_SECRET_REFRESH', JWT_SECRET_REFRESH);
+
 		// generate jwt
     const token = jwt.sign(
       data,

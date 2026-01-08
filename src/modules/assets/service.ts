@@ -53,7 +53,7 @@ export const assetService = {
 
 		const [assets, total] = await Promise.all([
 			query,
-			assetRepository.count(where, name),
+			assetRepository.count({ ...where, isDeleted: false }, name),
 		]);
 
 		return {

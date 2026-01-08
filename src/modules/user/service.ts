@@ -6,6 +6,8 @@ import { AppError } from '@/utils/appError';
 import bcrypt from 'bcrypt';
 import { Role } from '@/constants/Role';
 
+const baseUrl = process.env.FILE_PATH;
+
 export const userService = {
   getUsers: async (
     page: number,
@@ -32,7 +34,15 @@ export const userService = {
     }
 
     const [users, total] = await Promise.all([
-      userRepository.get(skip, size, where),
+      userRepository.get(skip, size, where).then(users =>
+        users.map(item => ({
+          ...item,
+          image: item.image
+            ? `${baseUrl}/${item.image.storageKey}`
+            : null,
+          imageId: item.image?.id ?? null,
+        })),
+      ),
       userRepository.count(where),
     ]);
 
