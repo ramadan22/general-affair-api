@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { historyRepository } from './repository';
 import { HistoryType, Prisma } from '@prisma/client';
 import { AppError } from '@/utils/appError';
@@ -6,14 +5,6 @@ import { AppError } from '@/utils/appError';
 export const historyService = {
   async create(data: {
     type: HistoryType;
-=======
-import { $Enums } from '@prisma/client';
-import { approvalHistoryRepository } from './repository';
-
-export const approvalHistoryService = {
-  async createHistory(data: {
-    type: $Enums.HistoryType;
->>>>>>> origin/main
     description?: string;
     assetId?: string;
     approvalId?: string;
