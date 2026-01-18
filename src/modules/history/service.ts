@@ -1,22 +1,73 @@
-import { $Enums } from '@prisma/client';
-import { approvalHistoryRepository } from './repository';
+import { historyRepository } from './repository';
+import { HistoryType, Prisma } from '@prisma/client';
+import { AppError } from '@/utils/appError';
 
-export const approvalHistoryService = {
-  async createHistory(data: {
-    type: $Enums.HistoryType;
+export const historyService = {
+  async create(data: {
+    type: HistoryType;
     description?: string;
     assetId?: string;
     approvalId?: string;
     performedById?: string;
+    fromUserId?: string;
+    toUserId?: string;
+    metadata?: object;
   }) {
-    return approvalHistoryRepository.create(data);
+    return historyRepository.create(data);
   },
 
-  async getAllHistories() {
-    return approvalHistoryRepository.findAll();
+  async getAll(
+    page: number,
+    size: number,
+    filters?: {
+      type?: HistoryType;
+      assetId?: string;
+      approvalId?: string;
+    }
+  ) {
+    const skip = (page - 1) * size;
+
+    const where: Prisma.HistoryWhereInput = {};
+
+    if (filters?.type) {
+      where.type = filters.type;
+    }
+
+    if (filters?.assetId) {
+      where.assetId = filters.assetId;
+    }
+
+    if (filters?.approvalId) {
+      where.approvalId = filters.approvalId;
+    }
+
+    const [data, total] = await Promise.all([
+      historyRepository.findAll(skip, size, where),
+      historyRepository.count(where),
+    ]);
+
+    return {
+      data,
+      meta: {
+        page,
+        size,
+        total,
+        totalPages: Math.ceil(total / size),
+      },
+    };
   },
 
-  async getHistoryById(id: string) {
-    return approvalHistoryRepository.findById(id);
+  async getById(id: string) {
+    const history = await historyRepository.findById(id);
+
+    if (!history) {
+      throw new AppError({
+        message: 'History not found',
+        status: 404,
+        data: { historyId: id },
+      });
+    }
+
+    return history;
   },
 };

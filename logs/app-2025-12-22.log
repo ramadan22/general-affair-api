@@ -1,0 +1,120 @@
+[2025-12-22 11:00:17] [Trace ID: fd2b14f7-996e-4868-b549-27ec321e7eca] PrismaClientInitializationError: 
+    Invalid `prisma.user.findUnique()` invocation in
+    \src\modules\authentication\repository.ts:5:24
+    
+      2 
+      3 export const authenticationRepository = {
+      4 	findByEmail: (email: string) => {
+    → 5     return prisma.user.findUnique(
+    Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+    
+    Please make sure to provide valid database credentials for the database server at the configured address.
+        at ei.handleRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:242:13)
+        at ei.handleAndLogRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+        at ei.request (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+        at async a (\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
+        at async Object.findUser (\src\modules\authentication\service.ts:27:16)
+        at async login (\src\modules\authentication\controller.ts:31:18)
+{
+  "name": "PrismaClientInitializationError",
+  "context": "POST /api/authentication/login",
+  "clientVersion": "6.15.0",
+  "level": "error"
+}
+
+[2025-12-22 11:00:17] [Trace ID: fd2b14f7-996e-4868-b549-27ec321e7eca] 400 - 760ms
+{
+  "context": "POST /api/authentication/login",
+  "level": "info"
+}
+
+[2025-12-22 11:03:06] [Trace ID: 0119d02d-2f89-42be-8cc2-5c6e2a6b3f4b] PrismaClientInitializationError: 
+    Invalid `prisma.user.findUnique()` invocation in
+    \src\modules\authentication\repository.ts:5:24
+    
+      2 
+      3 export const authenticationRepository = {
+      4 	findByEmail: (email: string) => {
+    → 5     return prisma.user.findUnique(
+    Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+    
+    Please make sure to provide valid database credentials for the database server at the configured address.
+        at ei.handleRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:242:13)
+        at ei.handleAndLogRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+        at ei.request (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+        at async a (\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
+        at async Object.findUser (\src\modules\authentication\service.ts:27:16)
+        at async login (\src\modules\authentication\controller.ts:31:18)
+{
+  "name": "PrismaClientInitializationError",
+  "context": "POST /api/authentication/login",
+  "clientVersion": "6.15.0",
+  "level": "error"
+}
+
+[2025-12-22 11:03:06] [Trace ID: 0119d02d-2f89-42be-8cc2-5c6e2a6b3f4b] 400 - 183ms
+{
+  "context": "POST /api/authentication/login",
+  "level": "info"
+}
+
+[2025-12-22 11:03:14] [Trace ID: 9051e92c-f9e7-40e3-969b-d65b582f63d9] PrismaClientInitializationError: 
+    Invalid `prisma.user.findUnique()` invocation in
+    \src\modules\authentication\repository.ts:5:24
+    
+      2 
+      3 export const authenticationRepository = {
+      4 	findByEmail: (email: string) => {
+    → 5     return prisma.user.findUnique(
+    Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+    
+    Please make sure to provide valid database credentials for the database server at the configured address.
+        at ei.handleRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:242:13)
+        at ei.handleAndLogRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+        at ei.request (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+        at async a (\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
+        at async Object.findUser (\src\modules\authentication\service.ts:27:16)
+        at async login (\src\modules\authentication\controller.ts:31:18)
+{
+  "name": "PrismaClientInitializationError",
+  "context": "POST /api/authentication/login",
+  "clientVersion": "6.15.0",
+  "level": "error"
+}
+
+[2025-12-22 11:03:14] [Trace ID: 9051e92c-f9e7-40e3-969b-d65b582f63d9] 400 - 96ms
+{
+  "context": "POST /api/authentication/login",
+  "level": "info"
+}
+
+[2025-12-22 13:35:18] [Trace ID: 72848aca-6d71-4111-832f-ec7d89962848] PrismaClientInitializationError: 
+    Invalid `prisma.user.findUnique()` invocation in
+    \src\modules\authentication\repository.ts:5:24
+    
+      2 
+      3 export const authenticationRepository = {
+      4 	findByEmail: (email: string) => {
+    → 5     return prisma.user.findUnique(
+    Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+    
+    Please make sure to provide valid database credentials for the database server at the configured address.
+        at ei.handleRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:242:13)
+        at ei.handleAndLogRequestError (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+        at ei.request (\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+        at async a (\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
+        at async Object.findUser (\src\modules\authentication\service.ts:27:16)
+        at async login (\src\modules\authentication\controller.ts:31:18)
+{
+  "name": "PrismaClientInitializationError",
+  "context": "POST /api/authentication/login",
+  "clientVersion": "6.15.0",
+  "level": "error"
+}
+
+[2025-12-22 13:35:18] [Trace ID: 72848aca-6d71-4111-832f-ec7d89962848] 400 - 1277ms
+{
+  "context": "POST /api/authentication/login",
+  "level": "info"
+}
+

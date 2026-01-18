@@ -36,7 +36,7 @@ export const assetService = {
 	},
 	get: async (page: number, size: number, search: string, name?: string) => {
 		const skip = (page - 1) * size;
-		
+
 		const where = search
 			? {
 				OR: [
@@ -110,7 +110,95 @@ export const assetService = {
 		}
 
 		const result = await assetRepository.delete(id);
-	
+
 		return result;
-	}
+	},
+	scanByCode: async (code: string) => {
+		const { prisma } = await import('@/config/database');
+
+		// 1. Find asset with category details
+		const asset = await assetRepository.findByCodeWithDetails(code);
+
+		if (!asset) {
+			throw new AppError({
+				message: 'Asset not found',
+				status: 404,
+				data: { code },
+			});
+		}
+
+		// 2. Get current assignment (latest ASSIGNMENT history)
+		const latestAssignment = await prisma.history.findFirst({
+			where: {
+				assetId: asset.id,
+				type: 'ASSIGNMENT',
+			},
+			orderBy: { createdAt: 'desc' },
+			include: {
+				approval: {
+					select: {
+						id: true,
+						submissionType: true,
+						status: true,
+						requestedFor: {
+							select: {
+								id: true,
+								firstName: true,
+								lastName: true,
+								email: true,
+								role: true,
+							},
+						},
+					},
+				},
+				performedBy: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						email: true,
+						role: true,
+					},
+				},
+			},
+		});
+
+		// 3. Get full history
+		const histories = await prisma.history.findMany({
+			where: { assetId: asset.id },
+			orderBy: { createdAt: 'desc' },
+			include: {
+				approval: {
+					select: {
+						id: true,
+						submissionType: true,
+						status: true,
+						notes: true,
+					},
+				},
+				performedBy: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						email: true,
+						role: true,
+					},
+				},
+			},
+		});
+
+		// 4. Build response
+		return {
+			...asset,
+			currentAssignment: latestAssignment
+				? {
+					user: latestAssignment.approval?.requestedFor || null,
+					assignedAt: latestAssignment.createdAt,
+					approvalId: latestAssignment.approvalId,
+				}
+				: null,
+			history: histories,
+		};
+	},
 };

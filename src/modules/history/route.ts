@@ -1,10 +1,11 @@
 import express from 'express';
-import { approvalHistoryController } from './controller';
+import { historyController } from './controller';
+import { checkUserToken } from '@/middlewares/checkToken';
 
 const router = express.Router();
 
-router.post('/', approvalHistoryController.create);
-router.get('/', approvalHistoryController.getAll);
-router.get('/:id', approvalHistoryController.getById);
+router.post('/', checkUserToken, historyController.create);
+router.get('/', checkUserToken, historyController.getAll);
+router.get('/:id', checkUserToken, historyController.getById);
 
 export default router;

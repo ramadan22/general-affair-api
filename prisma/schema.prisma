@@ -36,7 +36,7 @@ model User {
   approvalsRequested Approval[]          @relation("RequestedForApprovals")
   approvalsCreated   Approval[]          @relation("CreatedApprovals")
   signatures         ApprovalSignature[] // user bisa tanda tangan banyak approval
-  histories          ApprovalHistory[]   @relation("UserToHistory")
+  histories          History[]           @relation("UserToHistory")
 
   imageId     String? @unique
   image       Upload? @relation(fields: [imageId], references: [id], onDelete: SetNull)
@@ -85,7 +85,7 @@ model Asset {
   isDeleted     Boolean   @default(false)
 
   ApprovalAsset ApprovalAsset[]
-  histories     ApprovalHistory[] @relation("AssetToHistory")
+  histories     History[]         @relation("AssetToHistory")
 }
 
 enum SubmissionType {
@@ -116,7 +116,7 @@ model Approval {
 
   assets     ApprovalAsset[]
   signatures ApprovalSignature[]
-  histories  ApprovalHistory[]   @relation("ApprovalToHistory")
+  histories  History[]           @relation("ApprovalToHistory")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime?
@@ -166,11 +166,11 @@ enum HistoryType {
   ASSIGNMENT
 }
 
-model ApprovalHistory {
+model History {
   id            String      @id @default(uuid())
   assetId       String?
   approvalId    String?
-  type          HistoryType
+  type          HistoryType @default(APPROVAL)
   description   String?
   fromUserId    String?
   toUserId      String?
@@ -185,4 +185,5 @@ model ApprovalHistory {
   @@index([assetId])
   @@index([approvalId])
   @@index([type])
+  @@map("ApprovalHistory")
 }
