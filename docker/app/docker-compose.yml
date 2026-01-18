@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+    image: backend_app:${NODE_ENV}
+    container_name: backend_app
+    restart: always
+
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+
+    env_file:
+      - ../../.env
+
+    volumes:
+      - ../../uploads:/app/uploads 
+
+    environment:
+      # App
+      NODE_ENV: ${NODE_ENV}
+      APP_PORT: ${APP_PORT}
+      APP_HOST: ${APP_HOST}
+      BASE_URL: ${BASE_URL}
+
+      # Database
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Auth
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET_REFRESH: ${JWT_SECRET_REFRESH}
+
+      # Mail
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+
+    networks:
+      - ga_network
+
+networks:
+  ga_network:
+    external: true

@@ -1,6 +1,8 @@
 import { prisma } from '@/config/database';
 import { Role } from '@/constants/Role';
 
+const baseUrl = process.env.FILE_PATH;
+
 export const userRepository = {
   get: (skip: number, size: number, where: object) => {
     return prisma.user.findMany({
@@ -13,7 +15,12 @@ export const userRepository = {
         firstName: true,
         lastName: true,
         email: true,
-        image: true,
+        image: {
+          select: {
+            id: true,
+            storageKey: true,
+          },
+        },
         socialMedia: true,
         role: true,
         isActive: true,
@@ -45,32 +52,49 @@ export const userRepository = {
       },
     });
   },
-  update: (id, data) => {
-    return prisma.user.update({
+  update: async (id, data) => {
+    const user = await prisma.user.update({
       data,
       where: { id },
       select: {
         id: true,
         firstName: true,
         lastName: true,
-        image: true,
+        image: {
+          select: {
+            id: true,
+            storageKey: true,
+          },
+        },
         socialMedia: true,
+        isActive: true,
+        email: true,
         role: true,
         updatedAt: true,
       },
     });
+
+    return {
+      ...user,
+      image: user.image
+        ? `${baseUrl}/${user.image.storageKey}`
+        : null,
+      imageId: user.image
+        ? user.image.id
+        : null,
+    };
   },
   findByEmail: (email: string) => {
     return prisma.user.findUnique({ where: { email, isDeleted: false } });
   },
-  findById: (id: string) => {
-    return prisma.user.findUnique({
+  findById: async (id: string) => {
+    const user = await prisma.user.findUnique({
       where: { id, isDeleted: false },
       select: {
         id: true,
         firstName: true,
         lastName: true,
-        image: true,
+        email: true,
         isActive: true,
         socialMedia: true,
         role: true,
@@ -83,9 +107,25 @@ export const userRepository = {
             role: true,
           },
         },
+        image: {
+          select: {
+            id: true,
+            storageKey: true,
+          },
+        },
         updatedAt: true,
         createdAt: true,
       },
     });
+
+    return {
+      ...user,
+      image: user.image
+        ? `${baseUrl}/${user.image.storageKey}`
+        : null,
+      imageId: user.image
+        ? user.image.id
+        : null,
+    };
   },
 };

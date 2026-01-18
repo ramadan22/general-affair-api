@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { readFileSync } from 'fs';
 import path from 'path';
-import { Client } from 'pg';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 

@@ -1,16 +1,32 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:15
     container_name: my_postgres
     restart: always
+
+    env_file:
+      - ../../.env
+
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: app_ga
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:${DB_PORT}"
+
     volumes:
-      - data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - ga_network
 
 volumes:
-  data:
+  postgres_data:
+    name: postgres_postgres_data
+
+networks:
+  ga_network:
+    external: true

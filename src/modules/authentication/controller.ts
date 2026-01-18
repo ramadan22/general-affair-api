@@ -41,6 +41,9 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       isActive: user?.isActive,
     };
 
+    console.log('JWT_SECRET', JWT_SECRET);
+    console.log('JWT_SECRET_REFRESH', JWT_SECRET_REFRESH);
+
 		// generate jwt
     const token = jwt.sign(
       data,
@@ -169,6 +172,22 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
       status: 200,
       message: 'Token refreshed successfully',
       data: { accessToken: newAccessToken },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function resetPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await authenticationService.resetPassword(req.body.id);
+
+    return defaultResponse({
+      response: res,
+      success: true,
+      status: 200,
+      message: 'Reset password successfully',
+      data,
     });
   } catch (err) {
     next(err);

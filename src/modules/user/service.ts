@@ -1,29 +1,48 @@
-import { removeObjectKeys } from '@/utils';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { generateNumericPassword, removeObjectKeys } from '@/utils';
 import { userRepository } from './repository';
 import { AppError } from '@/utils/appError';
 import bcrypt from 'bcrypt';
 import { Role } from '@/constants/Role';
 
-function generateNumericPassword(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+const baseUrl = process.env.FILE_PATH;
 
 export const userService = {
-  getUsers: async (page: number, size: number, search: string) => {
+  getUsers: async (
+    page: number,
+    size: number,
+    search: string,
+    userId?: string
+  ) => {
     const skip = (page - 1) * size;
 
-    const where = search
-      ? {
-        OR: [
-          { firstName: { contains: search } },
-          { lastName: { contains: search } },
-          { email: { contains: search } },
-        ],
-      }
-      : {};
+    const where: Record<string, any> = {
+      isDeleted: false,
+    };
+
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (userId) {
+      where.NOT = { id: userId };
+    }
 
     const [users, total] = await Promise.all([
-      userRepository.get(skip, size, { ...where, isDeleted: false }),
+      userRepository.get(skip, size, where).then(users =>
+        users.map(item => ({
+          ...item,
+          image: item.image
+            ? `${baseUrl}/${item.image.storageKey}`
+            : null,
+          imageId: item.image?.id ?? null,
+        })),
+      ),
       userRepository.count(where),
     ]);
 
@@ -37,17 +56,21 @@ export const userService = {
       },
     };
   },
+
   deleteUser: async (id: string) => {
     const user = await userRepository.delete(id);
 
     return user;
   },
   register: async (firstName: string, email: string, role: Role) => {
-
     const existingUser = await userRepository.findByEmail(email);
-    
+
     if (existingUser) {
-      throw new AppError({ message: 'Email already registered', status: 400, data: { email } });
+      throw new AppError({
+        message: 'Email already registered',
+        status: 400,
+        data: { email },
+      });
     }
 
     const plainPassword = generateNumericPassword();
@@ -64,15 +87,25 @@ export const userService = {
   },
   update: async (params) => {
     const userById = await userRepository.findById(params.id);
-    
+
     if (!userById) {
-      throw new AppError({ message: 'User not exist', status: 400, data: { userId: params.id } });
+      throw new AppError({
+        message: 'User not exist',
+        status: 400,
+        data: { userId: params.id },
+      });
     }
 
-    const user = await userRepository.update(params.id, removeObjectKeys({
-      ...params,
-      updatedAt: new Date(),
-    }, ['id']));
+    const user = await userRepository.update(
+      params.id,
+      removeObjectKeys(
+        {
+          ...params,
+          updatedAt: new Date(),
+        },
+        ['id']
+      )
+    );
 
     return user;
   },

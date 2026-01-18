@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch -r tsconfig-paths/register src/server.ts",
-    "build": "tsc",
+    "build": "tsup src/server.ts --format esm --platform node --out-dir dist",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",
     "lint": "npm run type-check && eslint . --ext .ts",
@@ -13,14 +13,17 @@
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
+    "@types/nodemailer": "^7.0.4",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^17.2.2",
+    "dotenv-expand": "^12.0.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.11",
     "pg": "^8.16.3",
     "prisma": "^6.15.0",
     "sharp": "^0.34.5",
@@ -44,6 +47,7 @@
     "eslint": "^9.34.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }

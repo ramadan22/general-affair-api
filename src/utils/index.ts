@@ -19,3 +19,7 @@ export function removeObjectKeys<T extends Record<string, any>, K extends keyof 
   }
   return result;
 }
+
+export function generateNumericPassword(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
